@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:skia="clr-namespace:SkiaSharp.Views.Forms;assembly=SkiaSharp.Views.Forms"
+             xmlns:local="clr-namespace:FormsLevelMap"
+             x:Class="FormsLevelMap.MainPage"
+             BackgroundColor="White">
+
+    <ScrollView  x:Name="MainScrollView" RotationX="180">
+        <AbsoluteLayout HorizontalOptions="CenterAndExpand" x:Name="OuterAbsoluteLayout" >
+            <StackLayout x:Name="backgroundStack" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="SizeProportional" Spacing="-6"></StackLayout>
+            <!--<Image x:Name="backgroundImage" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="SizeProportional" Aspect="Fill"></Image>-->
+            <skia:SKCanvasView x:Name="SkCanvasView2" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="SizeProportional" HorizontalOptions="Start"/>
+            <skia:SKCanvasView x:Name="SkCanvasView" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="SizeProportional" HorizontalOptions="Start"/>
+            <AbsoluteLayout x:Name="MainAbsoluteLayout" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="SizeProportional" HorizontalOptions="Start">
+            </AbsoluteLayout>
+        </AbsoluteLayout>
+    </ScrollView>
+</ContentPage>
