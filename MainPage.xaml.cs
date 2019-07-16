@@ -10,35 +10,33 @@ namespace FormsLevelMap
 {
     public partial class MainPage : ContentPage
     {
-        /*protected override void OnSizeAllocated(double width, double height)
-        {
-              BackgroundImage = ImageSource.FromResource("Candymap.Images.bg.jpg", typeof(MainPage));
-        }*/
-
         public MainPage()
         {
 
             InitializeComponent();
 
             //.........................
+            // new variables
+
             int lastDeletedButton = 0;
-            var gapButtons = new List<Button>();
+            int lastDeletedFrame = 0;
             double gapY = 10;
+            int buttonBuffer = 24;
+            List<Frame> frames = new List<Frame>();
 
             //.........................
 
-            int numButtonsInPattern = 12;
-            var widgetWidth = 350;                          //Width of buttons screen                250----350
+            int numButtonsInPattern = 6;
+            int widgetWidth = 350;                          //Width of buttons screen                250----350
             int buttonWidth = 60;
             int buttonHeight = 60;
             int smallButtonHeight = 30;
             int smallButtonWidth = 30;
             //int randomnessFactor = 50;
-            var curlinessFactor = 60;                       //Change if changing widgetWidth          30----60
+            int curlinessFactor = 60;                       //Change if changing widgetWidth          30----60
             float currentScore = 10000;
             float segmentScore = 1000;
 
-            //backgroundImage.Source = ImageSource.FromResource("Candymap.Images.bg.jpg", typeof(MainPage));
             int heightScale = widgetWidth / numButtonsInPattern;
             int scrollThreshold = heightScale * numButtonsInPattern / 4;
             SkCanvasView.WidthRequest = widgetWidth;
@@ -57,7 +55,8 @@ namespace FormsLevelMap
             float traversedScore = 0.0f;
             //int TotalIterations = 0;
             var BGImage = ImageSource.FromResource("FormsLevelMap.Images.bg.jpg", typeof(MainPage));
-            var GapImage = ImageSource.FromResource("FormsLevelMap.Images.circle.jpg", typeof(MainPage));
+            var GapImage = ImageSource.FromFile("saturn");
+            
             bool clipLock = false;
             var lastPoints = new List<SKPoint>();
             var firstPoints = new List<SKPoint>();
@@ -107,60 +106,51 @@ namespace FormsLevelMap
                 StrokeJoin = SKStrokeJoin.Miter
             };
 
-            int buttonInserted = 2;
+            int buttonInserted = 1;
 
             void buttonCreater()
             {
                 var xyPoint = new List<SKPoint>();
-                bool a, b;
+                double gapImageShiftScaleX;
+                double gapImageShiftScaleY;
 
                 for (var i = 0; i < numButtonsInPattern; i++)
                 {
-                    Button button = new Button
-                    {
-                        Text = "asdsd",
-                        WidthRequest = buttonWidth,
-                        HeightRequest = buttonHeight,
-                        CornerRadius = buttonWidth / 2,
-                        BackgroundColor = Color.Green,
-                        RotationX = 180,
-                    };
 
                     Image image = new Image
                     {
-                        Source = ImageSource.FromFile("circle.jpg"),
-                        //Source = GapImage,
+                        Source = GapImage,
+                        BackgroundColor = Color.Transparent,
                         Aspect = Aspect.AspectFit,
-                        HeightRequest = buttonHeight,
-                        WidthRequest = buttonWidth,
-                        RotationX = 180
+                        HeightRequest = buttonHeight * 2,
+                        WidthRequest = buttonWidth * 2,
+                        RotationX = 180,
                     };
 
-                    
+                    gapImageShiftScaleY = (image.Height - buttonHeight) / 2;
 
                     Frame frame = new Frame
                     {
-                        CornerRadius = buttonWidth / 2,
-                        Content = image
+                        CornerRadius = buttonWidth,
+                        Content = image,
+                        Padding = 0
+                        
                     };
 
                     int indexForButtonText = buttons.Count - 1;
-                    //if (indexForButtonText == 241) { color = Color.Green; }
-                    //else { color = Color.Default; }
 
                     if (i % 2 != 0)
                     {
                         buttons.Add(new Button
                         {
-                            //Text = (indexForButtonText + 1).ToString(),
-                            WidthRequest = smallButtonWidth,
-                            HeightRequest = smallButtonHeight,
-                            CornerRadius = smallButtonWidth / 2,
-                            //BackgroundColor = Color.Transparent,
+                            Text = (indexForButtonText + 1).ToString(),
+                            WidthRequest = buttonWidth,
+                            HeightRequest = buttonHeight,
+                            CornerRadius = buttonWidth / 2,
                             HorizontalOptions = LayoutOptions.Center,
                             VerticalOptions = LayoutOptions.Center,
+                            BackgroundColor = Color.Orange,
                             RotationX = 180,
-                            RotationY = 180
                         });
                     }
                     else
@@ -194,21 +184,25 @@ namespace FormsLevelMap
                         AbsoluteLayout.SetLayoutBounds(buttons[currentButtonIndex], new Rectangle(x, y, buttons[currentButtonIndex].Width, buttons[currentButtonIndex].Height));
                         AbsoluteLayout.SetLayoutFlags(buttons[currentButtonIndex], AbsoluteLayoutFlags.XProportional);
 
-                        //gapbutton
+                        //gapbutton 
                         if (buttons[buttons.Count - 1].Text == buttonInserted.ToString())
                         {
                             Console.WriteLine($"FinalX------------{x}");
-                            AbsoluteLayout.SetLayoutBounds(frame, new Rectangle(x, gapY, button.Width, button.Height));
+                            gapImageShiftScaleX = ((image.Width - buttonWidth) * x) / ( 2 * widgetWidth);
+                            Console.WriteLine($"Xscale------{gapImageShiftScaleX}");
+                            AbsoluteLayout.SetLayoutBounds(frame, new Rectangle(x + gapImageShiftScaleX, gapY + gapImageShiftScaleY, image.Width, image.Height));
                             AbsoluteLayout.SetLayoutFlags(frame, AbsoluteLayoutFlags.XProportional);
                             MainAbsoluteLayout.Children.Add(frame);
+                            frames.Add(frame);
                             gapY += 174;
-                            buttonInserted += 6;
+                            buttonInserted += 3;
                         }
 
+                        
                         Console.WriteLine($"button1X------------{x}");
                         Console.WriteLine($"button1Y------------{y}");
-                        
                     }
+
                     else if (i == numButtonsInPattern / 2.0f)
                     {
                         var x = 2 - placementIndex * (2.0 / (numButtonsInPattern));
@@ -222,6 +216,7 @@ namespace FormsLevelMap
                         Console.WriteLine($"ButtonNumber-----------{buttons[2].Text}");
                         Console.WriteLine($"button2X------------{x}");
                         Console.WriteLine($"button2Y------------{y}");
+
                     }
 
                     else
@@ -237,11 +232,14 @@ namespace FormsLevelMap
                         if (buttons[buttons.Count - 1].Text == buttonInserted.ToString())
                         {
                             Console.WriteLine($"FinalX------------{x}");
-                            AbsoluteLayout.SetLayoutBounds(frame, new Rectangle(x, gapY, button.Width, button.Height));
+                            gapImageShiftScaleX = ((image.Width - buttonWidth) * x) / (2 * widgetWidth);
+                            Console.WriteLine($"Xscale------{gapImageShiftScaleX}");
+                            AbsoluteLayout.SetLayoutBounds(frame, new Rectangle(x - gapImageShiftScaleX, gapY + gapImageShiftScaleY, image.Width, image.Height));
                             AbsoluteLayout.SetLayoutFlags(frame, AbsoluteLayoutFlags.XProportional);
                             MainAbsoluteLayout.Children.Add(frame);
+                            frames.Add(frame);
                             gapY += 174;
-                            buttonInserted += 6;
+                            buttonInserted += 3;
                         }
 
                     }
@@ -296,13 +294,21 @@ namespace FormsLevelMap
 
             void DeleteButtons()
             {
-                int currentButtonIndex = buttons.Count - 1;
+                int currentButtonIndex = Int32.Parse(buttons[buttons.Count - 1].Text);
+                int buttonsToDelete = buttons.Count - (buttonBuffer + lastDeletedButton);
 
-                for (var i = lastDeletedButton; i < currentButtonIndex - 40; i++)
+                for (int i = lastDeletedButton; i < buttons.Count - buttonBuffer; i++)
                 {
-                    MainAbsoluteLayout.Children.Remove(buttons[currentButtonIndex]);
+                    MainAbsoluteLayout.Children.Remove(buttons[i]);
                 }
-                lastDeletedButton = currentButtonIndex - 40;
+
+                for (int i = lastDeletedFrame; i < (buttons.Count - buttonBuffer) / 3; i++)
+                {
+                    MainAbsoluteLayout.Children.Remove(frames[i]);
+                }
+
+                lastDeletedButton += buttonsToDelete;
+                lastDeletedFrame += buttonsToDelete / 3;
             }
 
             void Draw_RandomShape(SKCanvas skCanvas, object sender)
@@ -339,14 +345,6 @@ namespace FormsLevelMap
                                 collectedPath.MoveTo(elem[0]);
                                 collectedPath.ArcTo(new SKPoint(100, 100), 45, SKPathArcSize.Small, SKPathDirection.CounterClockwise, elem[1]);
                                 Console.WriteLine(traversedScore + "0-1");
-                                /*if (clipLock)
-                                {
-                                    pathClipper(elem[0], elem[1], new SKPoint(100, 100), 45, SKPathArcSize.Small, SKPathDirection.CounterClockwise, (currentScore - traversedScore));
-                                }
-                                if (traversedScore + segmentScore >= currentScore && !clipLock)
-                                {
-                                    clipLock = true;
-                                }*/
                             }
 
                         }
@@ -370,14 +368,6 @@ namespace FormsLevelMap
                                 collectedPath.MoveTo(elem[0]);
                                 collectedPath.ArcTo(new SKPoint(100, 100), 45, SKPathArcSize.Small, SKPathDirection.Clockwise, elem[1]);
                                 Console.WriteLine(traversedScore + "2-3");
-                                /*if (clipLock)
-                                {
-                                    pathClipper(elem[0], elem[1], new SKPoint(100, 100), 45, SKPathArcSize.Small, SKPathDirection.Clockwise, currentScore - traversedScore);
-                                }
-                                if (traversedScore + segmentScore >= currentScore && !clipLock)
-                                {
-                                    clipLock = true;
-                                }*/
                             }
                         }
 
@@ -437,40 +427,8 @@ namespace FormsLevelMap
                                 collectedPath.MoveTo(elem[0]);
                                 collectedPath.ArcTo(new SKPoint(100, 100), 45, SKPathArcSize.Small, SKPathDirection.Clockwise, elem[1]);
                                 Console.WriteLine(traversedScore + "3-4");
-
-                                /*if (clipLock)
-                                {
-                                    pathClipper(elem[0], elem[1], new SKPoint(100, 100), 45, SKPathArcSize.Small, SKPathDirection.Clockwise, currentScore - traversedScore);
-                                }
-
-                                if (traversedScore + segmentScore >= currentScore && !clipLock)
-                                {
-                                    clipLock = true;
-                                }*/
                             }
                         }
-
-                        /*if ((elem[1].Y - elem[0].Y) > 0 && (elem[1].X - elem[0].X) < 0)
-                        {
-                            Console.WriteLine("reached");
-                            //5->6
-                            var firstLineElem = new SKPoint[] { new SKPoint(elem[0].X, elem[0].Y - 5), new SKPoint(elem[1].X - 5, elem[1].Y) };
-                            var secondLineElem = new SKPoint[] { new SKPoint(elem[0].X, elem[0].Y + 5), new SKPoint(elem[1].X + 5, elem[1].Y) };
-                            streetPath.MoveTo(firstLineElem[0]);
-                            streetPath.ArcTo(new SKPoint(100, 100), 45, SKPathArcSize.Small, SKPathDirection.CounterClockwise, firstLineElem[1]);
-                            streetPath.MoveTo(secondLineElem[0]);
-                            streetPath.ArcTo(new SKPoint(100, 100), 45, SKPathArcSize.Small, SKPathDirection.CounterClockwise, secondLineElem[1]);
-
-                            scorePath.MoveTo(elem[0]);
-                            scorePath.ArcTo(new SKPoint(100, 100), 45, SKPathArcSize.Small, SKPathDirection.CounterClockwise,elem[1]);
-                            if (traversedScore < currentScore)
-                            {
-                                collectedPath.MoveTo(elem[0]);
-                                collectedPath.ArcTo(new SKPoint(100, 100), 45, SKPathArcSize.Small, SKPathDirection.CounterClockwise,elem[1]);
-                                traversedScore += 1000;
-                            }
-                            secondDone = false;
-                        }*/
 
                         if ((elem[1].Y - elem[0].Y) < 0 && (elem[1].X - elem[0].X) < 0)
                         {  //4 -> 5
@@ -505,16 +463,6 @@ namespace FormsLevelMap
                                 collectedPath.MoveTo(midlinemidpoint);
                                 collectedPath.ArcTo(new SKPoint(70, 70), 55, SKPathArcSize.Small, SKPathDirection.CounterClockwise, elem[1]);
                                 Console.WriteLine(traversedScore + "4-5 1");
-                                /*if (clipLock)
-                                {
-                                    pathClipper(elem[0], midlinemidpoint, new SKPoint(70, 70), 55, SKPathArcSize.Small, SKPathDirection.Clockwise, currentScore - traversedScore);
-                                    pathClipper(midlinemidpoint, elem[1], new SKPoint(70, 70), 55, SKPathArcSize.Small, SKPathDirection.CounterClockwise, currentScore - traversedScore);
-
-                                }
-                                if (traversedScore + segmentScore >= currentScore && !clipLock)
-                                {
-                                    clipLock = true;
-                                }*/
                             }
 
                             try
@@ -551,141 +499,10 @@ namespace FormsLevelMap
                             collectedPath.MoveTo(thisLine[0]);
                             collectedPath.ArcTo(new SKPoint(100, 100), 45, SKPathArcSize.Small, SKPathDirection.CounterClockwise, thisLine[1]);
                             Console.WriteLine(traversedScore + "5-6");
-                            /*if (clipLock)
-                            {
-                                pathClipper(thisLine[0], thisLine[1], new SKPoint(100, 100), 45, SKPathArcSize.Small, SKPathDirection.CounterClockwise, currentScore - traversedScore);
-                            }
-                            if (traversedScore + segmentScore >= currentScore && !clipLock)
-                            {
-                                clipLock = true;
-                            }*/
                         }
                         donePoints.Add(thisLine);
                     }
                 }
-
-                void pathClipper(SKPoint point1, SKPoint point2, SKPoint radii, int angle, SKPathArcSize arcSize, SKPathDirection pathDirection, float clipLength)
-                {
-
-                    float onlyLength = segmentScore + clipLength;
-
-                    if (onlyLength == segmentScore)
-                    {
-                        clipperPath.MoveTo(point1);
-                        clipperPath.ArcTo(radii, angle, arcSize, pathDirection, point2);
-                    }
-                    else
-                    {
-                        clipperPath.MoveTo(point1);
-                        clipperPath.ArcTo(radii, angle, arcSize, pathDirection, point2);
-                        var clipPathPoints = clipperPath.GetPoints(max: 4);
-                        clipperPath.Reset();
-
-                        if (onlyLength < segmentScore / 2)
-                        {
-
-                            clipperPath.MoveTo(clipPathPoints[2]);
-                            clipperPath.LineTo(clipPathPoints[1]);   //full line 2 plus some of line 1 from reverse
-
-                            clipperPath.MoveTo(clipPathPoints[1]);
-                            clipperPath.LineTo(clipPathPoints[0]);
-
-                            /*var toPoint = distPoint(clipPathPoints[1], clipPathPoints[0], segmentScore/2-onlyLength);
-                            clipperPath.LineTo(toPoint);
-
-                            clipperPath.MoveTo(clipPathPoints[2]);*/
-
-                            //clipperPath.ArcTo(radii,angle, arcSize, pathDirection,toPoint);
-                        }
-                        else if (onlyLength == segmentScore / 2)
-                        {
-                            clipperPath.MoveTo(clipPathPoints[2]);
-                            clipperPath.LineTo(clipPathPoints[1]);   //full line 2 
-
-                            //clipperPath.MoveTo(clipPathPoints[2]);
-                            //clipperPath.ArcTo(radii, angle, arcSize, pathDirection, clipPathPoints[1]);
-                        }
-                        else
-                        {
-                            clipperPath.MoveTo(clipPathPoints[2]);
-                            clipperPath.LineTo(clipPathPoints[1]);
-                            //clipperPath.MoveTo(clipPathPoints[2]);
-                            /*double remLength = segmentScore - onlyLength;
-
-                            var toPoint = distPoint(clipPathPoints[2], clipPathPoints[1], remLength);
-                            clipperPath.LineTo(toPoint);            //some line 2 from reverse
-
-                            clipperPath.MoveTo(clipPathPoints[2]);*/
-                            //clipperPath.ArcTo(radii, angle, arcSize, pathDirection, toPoint);
-                            //totalLength += Math.Sqrt(Math.Pow((clipPathPoints[i].X - clipPathPoints[i + 1].X), 2) + Math.Pow((clipPathPoints[i].Y - clipPathPoints[i + 1].Y), 2));
-                            //clipperPath.MoveTo(clipPathPoints[i]);
-                            //clipperPath.LineTo(clipPathPoints[i + 1]);
-
-                        }
-                        Console.WriteLine("heyheyhey" + onlyLength.ToString());
-                    }
-                    //skCanvas.ClipPath(clipperPath, SKClipOperation.Difference);
-                }
-
-                SKPoint distPoint(SKPoint point1, SKPoint point2, double distance)
-                {
-                    var t = distance / segmentScore;
-                    var x = (1 - t) * point1.X + t * point2.X;
-                    var y = (1 - t) * point1.Y + t * point2.Y;
-                    return new SKPoint((float)x, (float)y);
-                }
-                /*try
-                index
-                    for (var i = 1; i < lastPoints.Count; i++)
-                    {
-                        //var thisLine = new SKPoint[] { new SKPoint(lastPoints[i].X, lastPoints[i].Y), new SKPoint(firstPoints[i + 1].X, firstPoints[i + 1].Y) };
-                        if (!donePoints.Contains(new SKPoint[] { new SKPoint(lastPoints[i - 1].X, lastPoints[i - 1].Y), new SKPoint(firstPoints[i].X, firstPoints[i].Y) }))
-                        {
-                            /*skLineList.Add(new SKPoint[] {
-                                lastPoints[i],firstPoints[i+1]
-                            });
-                            var firstLineElem = new SKPoint[] { new SKPoint(lastPoints[i - 1].X, lastPoints[i - 1].Y - 5), new SKPoint(firstPoints[i].X - 5, firstPoints[i].Y) };
-                            var secondLineElem = new SKPoint[] { new SKPoint(lastPoints[i - 1].X, lastPoints[i - 1].Y + 5), new SKPoint(firstPoints[i].X + 5, firstPoints[i].Y) };
-                            //5->6
-                            streetPath.MoveTo(firstLineElem[0]);
-                            streetPath.ArcTo(new SKPoint(100, 100), 45, SKPathArcSize.Small, SKPathDirection.CounterClockwise, firstLineElem[1]);
-                            streetPath.MoveTo(secondLineElem[0]);
-                            streetPath.ArcTo(new SKPoint(100, 100), 45, SKPathArcSize.Small, SKPathDirection.CounterClockwise, secondLineElem[1]);
-
-                            scorePath.MoveTo(new SKPoint(lastPoints[i - 1].X, lastPoints[i - 1].Y));
-                            scorePath.ArcTo(new SKPoint(100, 100), 45, SKPathArcSize.Small, SKPathDirection.CounterClockwise, new SKPoint(firstPoints[i].X, firstPoints[i].Y));
-                            if (traversedScore < currentScore && !collectionLock)
-                            {
-                                collectedPath.MoveTo(new SKPoint(lastPoints[i - 1].X, lastPoints[i - 1].Y));
-                                collectedPath.ArcTo(new SKPoint(100, 100), 45, SKPathArcSize.Small, SKPathDirection.CounterClockwise, new SKPoint(firstPoints[i].X, firstPoints[i].Y));
-                                traversedScore += 1000;
-                                collectionLock = true;
-                            }
-
-                            donePoints.Add(new SKPoint[] { new SKPoint(lastPoints[i - 1].X, lastPoints[i - 1].Y), new SKPoint(firstPoints[i].X, firstPoints[i].Y) });
-                        }
-                        else { Console.WriteLine("herehere"); }             ///TODO:  Control not reaching here, all 5->6 lines are redrawn 
-
-                    }
-                }
-                catch (Exception e) { Console.WriteLine(e.ToString()); }*/
-
-
-
-                /*using (SKPath.RawIterator iterator = scorePath.CreateRawIterator())
-                {
-                    SKPoint[] points = new SKPoint[8];
-                    SKPoint last = new SKPoint(30,30);
-                    while (iterator.Next(points) != SKPathVerb.Done)
-                    {
-                        
-                        //scorePath.MoveTo(points[0]);
-                            //SKPoint[] linePoints = new SKPoint[] { points[0], points[3] };
-                        Console.WriteLine("heyheyhey" + points[0].ToString());
-                        skCanvas.DrawLine(points[0], last, streetStroke);
-                        last = points[0];
-                    }
-                }*/
 
                 if (sender == SkCanvasView)
                 {
@@ -697,7 +514,11 @@ namespace FormsLevelMap
                     skCanvas.DrawPath(scorePath, scoreStroke);
                     skCanvas.DrawPath(streetPath, streetStroke);
                 }
-                //skCanvas.ClipPath(clipperPath, SKClipOperation.Intersect);
+            }
+
+            void DeletePath()
+            {
+
             }
 
             void SkCanvasView_OnPaintSurface(object sender, SKPaintSurfaceEventArgs args)
@@ -714,56 +535,40 @@ namespace FormsLevelMap
                 Draw_RandomShape(skCanvas, sender);
             }
 
-            for (var i = 0; i < 4; i++)
+            for (var i = 0; i < 3; i++)
             {
                 buttonCreater();
-                //AddGapButtons();
+                //DeleteButtons();
                 //TotalIterations++;
                 backgroundStack.Children.Add(new Image()
                 {
                     Source = BGImage,
+                    //Source = BGImage,
                     Aspect = Aspect.AspectFill,
                     HeightRequest = 350,
                     Margin = new Thickness(0, 0, 0, 0),
 
                 });
             }
-            //while(MainScrollView.ContentSize.Height < screenHeight) { buttonCreater(TotalIterations); TotalIterations++; }
 
             SkCanvasView.PaintSurface += SkCanvasView_OnPaintSurface;
             SkCanvasView2.PaintSurface += SkCanvasView_OnPaintSurface;
 
-            /*MainScrollView.Scrolled += (object sender, ScrolledEventArgs e) =>
-            {
-                Console.WriteLine(MainScrollView.ScrollY.ToString() + "hey " + MainScrollView.ContentSize.Height.ToString() + "hey " + MainScrollView.Height.ToString());
-                if (MainScrollView.ScrollY >= (MainScrollView.ContentSize.Height - MainScrollView.Height) + 1)
-                {
-                    buttonCreater(TotalIterations);
-                    TotalIterations++;
-                    //currentYLocation = e.ScrollY;
-                    Device.BeginInvokeOnMainThread(() =>
-                    {
-                        SkCanvasView.InvalidateSurface();
-                    });
-                }
-            };*/
-            var downSwipeGesture = new SwipeGestureRecognizer { Direction = SwipeDirection.Down };
-            downSwipeGesture.Threshold = 50;
-            downSwipeGesture.Swiped += (sender, e) => {
-                Console.WriteLine("heyhey" + e.Direction.ToString());
-                MainScrollView.ScrollToAsync(buttons[30], 0, true);
-            };
-            OuterAbsoluteLayout.GestureRecognizers.Add(downSwipeGesture);
-            MainScrollView.GestureRecognizers.Add(downSwipeGesture);
-
+            //var downSwipeGesture = new SwipeGestureRecognizer { Direction = SwipeDirection.Down };
+            //downSwipeGesture.Threshold = 50;
+            //downSwipeGesture.Swiped += (sender, e) => {
+            //    Console.WriteLine("heyhey" + e.Direction.ToString());
+            //    MainScrollView.ScrollToAsync(buttons[30], 0, true);
+            //};
+            //OuterAbsoluteLayout.GestureRecognizers.Add(downSwipeGesture);
+            //MainScrollView.GestureRecognizers.Add(downSwipeGesture);
             
             MainScrollView.Scrolled += (object sender, ScrolledEventArgs e) =>
             {
                 Console.WriteLine(e.ScrollY.ToString());
-
                 if (e.ScrollY > MainScrollView.ContentSize.Height - MainScrollView.Height - 30)
                 {
-
+                    //Thread.Sleep(100);
                     backgroundStack.Children.Add(new Image()
                     {
                         Source = BGImage,
@@ -775,27 +580,16 @@ namespace FormsLevelMap
 
                     void CallButtonCreator()
                     {
-                        Thread.Sleep(100);
+                        //Thread.Sleep(100);
                         buttonCreater();
-                        //AddGapButtons();
-
                     }
                     //buttonCreater(TotalIterations);
 
                     CallButtonCreator();
-                    DeleteButtons();
-                    //backgroundStack.Children.Add(new Image()
-                    //{
-                    //    Source = BGImage,
-                    //    Aspect = Aspect.AspectFill,
-                    //    HeightRequest = 350,
-                    //    Margin = new Thickness(0, 0, 0, 0),
-
-                    //});
-
                     
                     SkCanvasView.InvalidateSurface();
-                    SkCanvasView2.InvalidateSurface();
+                    DeleteButtons();
+                    //SkCanvasView2.InvalidateSurface();
                 }
             };
         }
