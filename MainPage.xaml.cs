@@ -10,15 +10,19 @@ namespace FormsLevelMap
 {
     public partial class MainPage : ContentPage
     {
-        //.........................
+
         // new variables
 
-        int buttonInserted = 1; 
+        int XPositionToInsertImage = 1; // to get X coordinate of Image in Gap
         int lastDeletedButton = 0;
         int lastDeletedFrame = 0;
         double gapY = 10;
         int buttonBuffer = 24;
         List<Frame> frames = new List<Frame>();
+        int buttonDiffForXPoint = 3;
+        double heightScaleForImageYPoint = 174;
+        double YForleftImage;
+        double YForRightImage;
 
         //.........................
 
@@ -65,7 +69,7 @@ namespace FormsLevelMap
 
             heightScale = widgetWidth / numButtonsInPattern;
             scrollThreshold = heightScale * numButtonsInPattern / 4;
-
+        
             SkCanvasView.WidthRequest = widgetWidth;
             SkCanvasView2.WidthRequest = widgetWidth;
             MainAbsoluteLayout.WidthRequest = widgetWidth;
@@ -118,7 +122,7 @@ namespace FormsLevelMap
             SkCanvasView.PaintSurface += SkCanvasView_OnPaintSurface;
             SkCanvasView2.PaintSurface += SkCanvasView_OnPaintSurface;
 
-            #region "down_Swipe_Gesture_Recognizer"
+            #region "Down_Swipe_Gesture_Recognizer"
             //var downSwipeGesture = new SwipeGestureRecognizer { Direction = SwipeDirection.Down };
             //downSwipeGesture.Threshold = 50;
             //downSwipeGesture.Swiped += (sender, e) => {
@@ -127,7 +131,7 @@ namespace FormsLevelMap
             //};
             //OuterAbsoluteLayout.GestureRecognizers.Add(downSwipeGesture);
             //MainScrollView.GestureRecognizers.Add(downSwipeGesture);
-            #endregion "down_Swipe_Gesture_Recognizer"
+            #endregion "Down_Swipe_Gesture_Recognizer"
 
             MainScrollView.Scrolled += ScrollEvent;
 
@@ -138,18 +142,17 @@ namespace FormsLevelMap
             for (var i = 0; i < 3; i++)
             {
                 buttonCreater();
-                //DeleteButtons();
                 //TotalIterations++;
                 backgroundStack.Children.Add(new Image()
                 {
                     Source = BGImage,
-                    //Source = BGImage,
                     Aspect = Aspect.AspectFill,
                     HeightRequest = 350,
                     Margin = new Thickness(0, 0, 0, 0),
-
                 });
             }
+            //deleting backGroung Image
+            //backgroundStack.Children.RemoveAt(0);
         }
 
         void buttonCreater()
@@ -229,7 +232,7 @@ namespace FormsLevelMap
                     AbsoluteLayout.SetLayoutFlags(buttons[currentButtonIndex], AbsoluteLayoutFlags.XProportional);
 
                     //gapbutton 
-                    if (buttons[buttons.Count - 1].Text == buttonInserted.ToString())
+                    if (buttons[buttons.Count - 1].Text == XPositionToInsertImage.ToString())
                     {
                         Console.WriteLine($"FinalX------------{x}");
                         gapImageShiftScaleX = ((image.Width - buttonWidth) * x) / (2 * widgetWidth);
@@ -238,10 +241,11 @@ namespace FormsLevelMap
                         AbsoluteLayout.SetLayoutFlags(frame, AbsoluteLayoutFlags.XProportional);
                         MainAbsoluteLayout.Children.Add(frame);
                         frames.Add(frame);
-                        gapY += 174;
-                        buttonInserted += 3;
-                    }
+                        YForleftImage = y;
+                        gapY += heightScaleForImageYPoint;
+                        XPositionToInsertImage += buttonDiffForXPoint;
 
+                    }
 
                     Console.WriteLine($"button1X------------{x}");
                     Console.WriteLine($"button1Y------------{y}");
@@ -273,7 +277,7 @@ namespace FormsLevelMap
 
 
                     //gapbutton
-                    if (buttons[buttons.Count - 1].Text == buttonInserted.ToString())
+                    if (buttons[buttons.Count - 1].Text == XPositionToInsertImage.ToString())
                     {
                         Console.WriteLine($"FinalX------------{x}");
                         gapImageShiftScaleX = ((image.Width - buttonWidth) * x) / (2 * widgetWidth);
@@ -282,8 +286,11 @@ namespace FormsLevelMap
                         AbsoluteLayout.SetLayoutFlags(frame, AbsoluteLayoutFlags.XProportional);
                         MainAbsoluteLayout.Children.Add(frame);
                         frames.Add(frame);
-                        gapY += 174;
-                        buttonInserted += 3;
+                        YForRightImage = y;
+                        heightScaleForImageYPoint = YForRightImage - YForleftImage;
+                        gapY += heightScaleForImageYPoint;
+                        XPositionToInsertImage += buttonDiffForXPoint;
+                        
                     }
 
                 }
@@ -336,16 +343,19 @@ namespace FormsLevelMap
             }
         }
 
+        //delete lower buttons on the away up
         void DeleteButtons()
         {
             int currentButtonIndex = Int32.Parse(buttons[buttons.Count - 1].Text);
             int buttonsToDelete = buttons.Count - (buttonBuffer + lastDeletedButton);
 
+            //deleting path buttons
             for (int i = lastDeletedButton; i < buttons.Count - buttonBuffer; i++)
             {
                 MainAbsoluteLayout.Children.Remove(buttons[i]);
             }
 
+            //deleting images between the path
             for (int i = lastDeletedFrame; i < (buttons.Count - buttonBuffer) / 3; i++)
             {
                 MainAbsoluteLayout.Children.Remove(frames[i]);
@@ -353,6 +363,10 @@ namespace FormsLevelMap
 
             lastDeletedButton += buttonsToDelete;
             lastDeletedFrame += buttonsToDelete / 3;
+
+            //deleting backGroung Image
+            //backgroundStack.Children.RemoveAt(0);
+
         }
 
         void Draw_RandomShape(SKCanvas skCanvas, object sender)
@@ -367,7 +381,6 @@ namespace FormsLevelMap
             {
                 if (!donePoints.Contains(elem))
                 {
-                    //skCanvas.DrawLine(elem[0].X, elem[0].Y, elem[1].X, elem[1].Y, strokePaint);
 
                     if ((elem[1].Y - elem[0].Y) > 0 && (elem[1].X - elem[0].X) > 0 && !firstDone)
                     {  //0 -> 1
