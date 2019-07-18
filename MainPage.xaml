@@ -8,12 +8,13 @@
 
     <ScrollView  x:Name="MainScrollView" RotationX="180">
         <AbsoluteLayout HorizontalOptions="CenterAndExpand" x:Name="OuterAbsoluteLayout" >
-            <StackLayout x:Name="backgroundStack" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="SizeProportional" Spacing="-6"></StackLayout>
+            <StackLayout x:Name="backgroundStack" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="SizeProportional" Spacing="-6"/>
+            <StackLayout x:Name="pathCanvasStack" Opacity="0.5" BackgroundColor="LightGreen" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="SizeProportional"  HorizontalOptions="Fill" Spacing="-6"/>
+            <StackLayout x:Name="progressCanvasStack" Opacity="0.5" BackgroundColor="LightGray" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="SizeProportional"  HorizontalOptions="Fill" Spacing="-6"/>
             <skia:SKCanvasView x:Name="SkCanvasView2" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="SizeProportional" HorizontalOptions="Start"/>
             <skia:SKCanvasView x:Name="SkCanvasView" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="SizeProportional" HorizontalOptions="Start"/>
-            <AbsoluteLayout x:Name="MainAbsoluteLayout" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="SizeProportional" HorizontalOptions="Start">
-            </AbsoluteLayout>
+            <AbsoluteLayout x:Name="MainAbsoluteLayout" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="SizeProportional" HorizontalOptions="Start"/>
         </AbsoluteLayout>
     </ScrollView>
-    
+
 </ContentPage>

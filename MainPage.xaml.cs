@@ -10,6 +10,8 @@ namespace FormsLevelMap
 {
     public partial class MainPage : ContentPage
     {
+        // SkCanvasView2 is the red path
+        // SkCanvasView is the blue path
         #region "Global_Variables"
         // new variables
 
@@ -23,6 +25,8 @@ namespace FormsLevelMap
         double heightScaleForImageYPoint = 174;
         double YForleftImage;
         double YForRightImage;
+        List<SKPoint[]> sectionalLineList = new List<SKPoint[]>();
+        
 
         //.........................
 
@@ -67,6 +71,8 @@ namespace FormsLevelMap
         {
 
             InitializeComponent();
+
+            #region "Lines and Layout_Height_Weight"
 
             heightScale = widgetWidth / numButtonsInPattern;
             scrollThreshold = heightScale * numButtonsInPattern / 4;
@@ -117,11 +123,9 @@ namespace FormsLevelMap
                 StrokeCap = SKStrokeCap.Round,
                 StrokeJoin = SKStrokeJoin.Miter
             };
-
+            #endregion "Lines and Layout_Height_Weight"
+            
             InitialIteration();
-
-            SkCanvasView.PaintSurface += SkCanvasView_OnPaintSurface;
-            SkCanvasView2.PaintSurface += SkCanvasView_OnPaintSurface;
 
             #region "Down_Swipe_Gesture_Recognizer"
             //var downSwipeGesture = new SwipeGestureRecognizer { Direction = SwipeDirection.Down };
@@ -135,14 +139,13 @@ namespace FormsLevelMap
             #endregion "Down_Swipe_Gesture_Recognizer"
 
             MainScrollView.Scrolled += ScrollEvent;
-
         }
 
         void InitialIteration()
         {
             for (var i = 0; i < 3; i++)
             {
-                buttonCreater();
+                ButtonCreater();
                 //TotalIterations++;
                 backgroundStack.Children.Add(new Image()
                 {
@@ -152,13 +155,28 @@ namespace FormsLevelMap
                     Margin = new Thickness(0, 0, 0, 0),
                 });
             }
+
+            SKCanvasView canvasView = new SKCanvasView();
+            canvasView.BackgroundColor = Color.Black;
+            canvasView.HorizontalOptions = LayoutOptions.Start;
+            canvasView.PaintSurface += SkCanvasView_OnPaintSurface;
+            pathCanvasStack.Children.Add(canvasView);
+
+            //SKCanvasView canvasView1 = new SKCanvasView();
+            //canvasView.HorizontalOptions = LayoutOptions.Start;
+            //canvasView1.PaintSurface += SkCanvasView_OnPaintSurface;
+            //progressCanvasStack.Children.Add(canvasView1);
+
+            //SkCanvasView.PaintSurface += SkCanvasView_OnPaintSurface;
+            //SkCanvasView2.PaintSurface += SkCanvasView_OnPaintSurface;
+
             //deleting backGroung Image
             //backgroundStack.Children.RemoveAt(0);
         }
 
-        void buttonCreater()
+        void ButtonCreater()
         {
-            var xyPoint = new List<SKPoint>();
+            List<SKPoint> xyPointList = new List<SKPoint>();
             double gapImageShiftScaleX;
             double gapImageShiftScaleY;
 
@@ -196,7 +214,7 @@ namespace FormsLevelMap
                         CornerRadius = buttonWidth / 2,
                         HorizontalOptions = LayoutOptions.Center,
                         VerticalOptions = LayoutOptions.Center,
-                        BackgroundColor = Color.Orange,
+                        BackgroundColor = Color.Green,
                         RotationX = 180,
                     }); 
                 }
@@ -210,7 +228,7 @@ namespace FormsLevelMap
                         CornerRadius = buttonWidth / 2,
                         HorizontalOptions = LayoutOptions.Center,
                         VerticalOptions = LayoutOptions.Center,
-                        BackgroundColor = Color.Green,
+                        BackgroundColor = Color.RosyBrown,
                         RotationX = 180,
                     });
                 }
@@ -257,7 +275,6 @@ namespace FormsLevelMap
                     //var y = currentButtonIndex * heightScale + rnd.Next(-randomnessFactor/2, +randomnessFactor);
                     AbsoluteLayout.SetLayoutBounds(buttons[currentButtonIndex], new Rectangle(x, y, buttons[0].Width, buttons[0].Height));
                     AbsoluteLayout.SetLayoutFlags(buttons[currentButtonIndex], AbsoluteLayoutFlags.XProportional);
-
 
 
                     Console.WriteLine($"ButtonNumber-----------{buttons[2].Text}");
@@ -310,36 +327,37 @@ namespace FormsLevelMap
                     var xforcurve = 0 + placementIndex * (2.0 / (6));
                     var yforcurve = (cbiforcurve * curveHeightScale + Math.Sin((i / (6 / 8.0f)) * Math.PI / 2) * curlinessFactor);
 
-                    if (i == 0) { xyPoint.Add(new SKPoint((float)(xforcurve * widgetWidth) + 30, (float)yforcurve + 30)); }
-                    else { xyPoint.Add(new SKPoint((float)(xforcurve * widgetWidth), (float)yforcurve + 30)); }
+                    if (i == 0) { xyPointList.Add(new SKPoint((float)(xforcurve * widgetWidth) + 30, (float)yforcurve + 30)); }
+                    else { xyPointList.Add(new SKPoint((float)(xforcurve * widgetWidth), (float)yforcurve + 30)); }
                 }
                 else if (i == 3.0f)
                 {
                     var xforcurve = 2 - placementIndex * (2.0 / (6));
                     var yforcurve = (cbiforcurve * curveHeightScale);
 
-                    xyPoint.Add(new SKPoint(((float)xforcurve * widgetWidth) - 30, (float)yforcurve + 30));
+                    xyPointList.Add(new SKPoint(((float)xforcurve * widgetWidth) - 30, (float)yforcurve + 30));
                 }
                 else
                 {
                     var xforcurve = 2 - placementIndex * (2.0 / (6));
                     var yforcurve = (cbiforcurve * curveHeightScale + Math.Sin((i / (6 / 8.0f)) * Math.PI / 2) * curlinessFactor);
 
-                    xyPoint.Add(new SKPoint((float)(xforcurve * widgetWidth), (float)yforcurve + 30));
+                    xyPointList.Add(new SKPoint((float)(xforcurve * widgetWidth), (float)yforcurve + 30));
                 }
-                cbiforcurve++;
+                cbiforcurve ++;
             }
 
-            firstPoints.Add(xyPoint[0]);
-            lastPoints.Add(xyPoint[5]);
+            firstPoints.Add(xyPointList[0]);
+            lastPoints.Add(xyPointList[5]);
 
-            for (var j = 0; j < 5; j++)
+            for (int i = 0; i < 5; i++)
             {
                 skLineList.Add(new SKPoint[]
                 {
-                        xyPoint[j],xyPoint[j+1]
+                        xyPointList[i],xyPointList[i+1]
                 });
             }
+            Console.WriteLine($"Lines-------{skLineList.Count}");
         }
 
         //delete lower buttons on the away up
@@ -368,15 +386,21 @@ namespace FormsLevelMap
 
         }
 
+        //should be called for every section/canvas
         void Draw_RandomShape(SKCanvas skCanvas, object sender)
         {
+
+            for (int i = 0; i < 5; i++)
+            {
+                sectionalLineList.Add(skLineList[i]);
+            }
+
             var donePoints = new List<SKPoint[]>();
             skLineList = skLineList.Distinct().ToList();
             bool firstDone = false;
-            //bool secondDone = false;
             int senderIndex = 1;
 
-            foreach (var elem in skLineList)
+            foreach (var elem in sectionalLineList)
             {
                 if (!donePoints.Contains(elem))
                 {
@@ -604,16 +628,28 @@ namespace FormsLevelMap
                 void CallButtonCreator()
                 {
                     //Thread.Sleep(100);
-                    buttonCreater();
+                    ButtonCreater();
                 }
                 //buttonCreater(TotalIterations);
 
                 CallButtonCreator();
 
-                SkCanvasView.InvalidateSurface();
+                //SkCanvasView.InvalidateSurface();
                 DeleteButtons();
+                AddCanvasSections();
                 //SkCanvasView2.InvalidateSurface();
             }
+        }
+
+        void AddCanvasSections()
+        {
+
+            SKCanvasView canvasView = new SKCanvasView();
+            canvasView.BackgroundColor = Color.Black;
+            canvasView.HorizontalOptions = LayoutOptions.Start;
+            canvasView.PaintSurface += SkCanvasView_OnPaintSurface;
+            pathCanvasStack.Children.Add(canvasView);
+
         }
     }
 }
