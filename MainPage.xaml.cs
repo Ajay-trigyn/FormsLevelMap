@@ -10,7 +10,7 @@ namespace FormsLevelMap
 {
     public partial class MainPage : ContentPage
     {
-
+        #region "Global_Variables"
         // new variables
 
         int XPositionToInsertImage = 1; // to get X coordinate of Image in Gap
@@ -61,6 +61,7 @@ namespace FormsLevelMap
         SKPaint scoreStroke;
         SKPaint collectedStroke;
         SKPaint clipStroke;
+        #endregion "Global_Variables"
 
         public MainPage()
         {
@@ -163,7 +164,6 @@ namespace FormsLevelMap
 
             for (var i = 0; i < numButtonsInPattern; i++)
             {
-
                 Image image = new Image
                 {
                     Source = GapImage,
@@ -198,7 +198,7 @@ namespace FormsLevelMap
                         VerticalOptions = LayoutOptions.Center,
                         BackgroundColor = Color.Orange,
                         RotationX = 180,
-                    });
+                    }); 
                 }
                 else
                 {
@@ -208,15 +208,15 @@ namespace FormsLevelMap
                         WidthRequest = buttonWidth,
                         HeightRequest = buttonHeight,
                         CornerRadius = buttonWidth / 2,
+                        HorizontalOptions = LayoutOptions.Center,
+                        VerticalOptions = LayoutOptions.Center,
                         BackgroundColor = Color.Green,
                         RotationX = 180,
-
                     });
                 }
 
                 int currentButtonIndex = buttons.Count - 1;
                 int placementIndex = currentButtonIndex;
-
 
                 while (placementIndex > numButtonsInPattern - 1)
                 {
@@ -244,7 +244,6 @@ namespace FormsLevelMap
                         YForleftImage = y;
                         gapY += heightScaleForImageYPoint;
                         XPositionToInsertImage += buttonDiffForXPoint;
-
                     }
 
                     Console.WriteLine($"button1X------------{x}");
